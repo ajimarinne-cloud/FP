@@ -1,0 +1,183 @@
+<script>
+let state = { me: null, fixedTags: [], selectedTags: new Set(), isAdmin: false };
+
+function showToast(message) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = message;
+  t.classList.remove('show');
+  // force reflow for replaying animation
+  void t.offsetWidth;
+  t.classList.add('show');
+}
+
+function animateTab(name) {
+  const sec = document.getElementById('tab-' + name);
+  if (!sec) return;
+  sec.classList.remove('tab-enter');
+  void sec.offsetWidth;
+  sec.classList.add('tab-enter');
+}
+
+function showTab(name) {
+  ['daily','plans','archive','admin'].forEach((k) => {
+    document.getElementById('tab-' + k).style.display = (k === name ? 'block' : 'none');
+  });
+  animateTab(name);
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function thisMonth() {
+  return todayStr().slice(0,7);
+}
+
+function init() {
+  document.getElementById('dailyDate').value = todayStr();
+  document.getElementById('archiveMonth').value = thisMonth();
+  document.getElementById('planMonth').value = thisMonth();
+
+  google.script.run.withSuccessHandler((res) => {
+    state.me = res.me;
+    state.fixedTags = res.fixedTags;
+    state.isAdmin = res.isAdmin;
+    document.getElementById('me').textContent = `ユーザー: ${res.me.name} (${res.me.user_id})`;
+    if (state.isAdmin) document.getElementById('adminTabBtn').style.display = 'inline-block';
+    renderFixedTags();
+    loadArchive();
+  }).withFailureHandler((e) => alert(e.message)).getBootstrapData(INITIAL_USER_ID);
+}
+
+function renderFixedTags() {
+  const root = document.getElementById('fixedTags');
+  root.innerHTML = '';
+  state.fixedTags.forEach((t) => {
+    const b = document.createElement('button');
+    b.className = 'tag-chip';
+    b.textContent = t;
+    b.onclick = () => {
+      if (state.selectedTags.has(t)) state.selectedTags.delete(t); else state.selectedTags.add(t);
+      b.classList.toggle('active');
+    };
+    root.appendChild(b);
+  });
+}
+
+function payloadDaily(allowEdit) {
+  const val = (id) => document.getElementById(id).value;
+  return {
+    user_id: state.me.user_id,
+    date: val('dailyDate'),
+    list_count: val('list_count'),
+    appt_cut_count: val('appt_cut_count'),
+    appt_plan_count: val('appt_plan_count'),
+    appt_done_count: val('appt_done_count'),
+    line_count: val('line_count'),
+    ac_plan_count: val('ac_plan_count'),
+    ac_done_count: val('ac_done_count'),
+    gratitude_text: val('gratitude_text'),
+    bottleneck_text: val('bottleneck_text'),
+    tags_fixed: Array.from(state.selectedTags),
+    tag_custom: val('tag_custom') ? '#' + val('tag_custom').replace(/^#/, '') : '',
+    allow_edit: allowEdit
+  };
+}
+
+function submitDaily(allowEdit) {
+  google.script.run.withSuccessHandler((res) => {
+    document.getElementById('dailyMsg').textContent = res.message || `保存しました (${res.status_text})`;
+    showToast(res.message || `保存しました (${res.status_text})`);
+    loadArchive();
+  }).withFailureHandler((e) => {
+    document.getElementById('dailyMsg').textContent = e.message;
+    showToast(`エラー: ${e.message}`);
+  }).saveDailyLog(payloadDaily(allowEdit));
+}
+
+function daysInMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+
+function loadArchive() {
+  const month = document.getElementById('archiveMonth').value;
+  google.script.run.withSuccessHandler((res) => {
+    document.getElementById('archiveSummary').textContent =
+      `KPI: 日程切り率 ${res.kpis.appt_cut_rate} / アポ実施率 ${res.kpis.appt_done_rate} / LINE作成率 ${res.kpis.line_rate}`;
+    const cal = document.getElementById('archiveCalendar');
+    cal.innerHTML = '';
+    const days = daysInMonth(month);
+    for (let d = 1; d <= days; d++) {
+      const date = `${month}-${String(d).padStart(2, '0')}`;
+      const s = res.statusByDate[date] || '—';
+      const cell = document.createElement('div');
+      cell.className = 'day';
+      cell.textContent = `${d} ${s}`;
+      cal.appendChild(cell);
+    }
+  }).withFailureHandler((e) => alert(e.message)).getMonthArchive(month, state.me.user_id);
+}
+
+function loadPlans() {
+  const month = document.getElementById('planMonth').value;
+  google.script.run.withSuccessHandler((rows) => {
+    const map = {};
+    rows.forEach((r) => map[r.date] = r);
+    const tbody = document.querySelector('#planTable tbody');
+    tbody.innerHTML = '';
+    const days = daysInMonth(month);
+    for (let d = 1; d <= days; d++) {
+      const date = `${month}-${String(d).padStart(2, '0')}`;
+      const row = map[date] || {};
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${date}</td>
+        <td><input data-k='appt' data-date='${date}' type='number' min='0' value='${row.appt_plan_count || 0}' /></td>
+        <td><input data-k='ac' data-date='${date}' type='number' min='0' value='${row.ac_plan_count || 0}' /></td>
+        <td><select data-k='status' data-date='${date}'>
+          <option ${row.status==='仮'?'selected':''}>仮</option>
+          <option ${row.status==='確定'?'selected':''}>確定</option>
+          <option ${row.status==='完了'?'selected':''}>完了</option>
+        </select></td>`;
+      tbody.appendChild(tr);
+    }
+  }).withFailureHandler((e) => alert(e.message)).getPlansByMonth(month, state.me.user_id);
+}
+
+function savePlansUi() {
+  const month = document.getElementById('planMonth').value;
+  const days = daysInMonth(month);
+  const entries = [];
+  for (let d = 1; d <= days; d++) {
+    const date = `${month}-${String(d).padStart(2, '0')}`;
+    const appt = document.querySelector(`[data-k='appt'][data-date='${date}']`);
+    const ac = document.querySelector(`[data-k='ac'][data-date='${date}']`);
+    const status = document.querySelector(`[data-k='status'][data-date='${date}']`);
+    entries.push({ date, appt_plan_count: appt.value, ac_plan_count: ac.value, status: status.value });
+  }
+  google.script.run.withSuccessHandler(() => {
+    document.getElementById('planMsg').textContent = '保存しました';
+    showToast('予定を保存しました');
+  }).withFailureHandler((e) => {
+    document.getElementById('planMsg').textContent = e.message;
+    showToast(`エラー: ${e.message}`);
+  }).savePlans({ user_id: state.me.user_id, entries });
+}
+
+function generateSnapshot() {
+  google.script.run.withSuccessHandler((res) => {
+    document.getElementById('snapshotOut').textContent = JSON.stringify(res, null, 2);
+    showToast('週次スナップショットを更新しました');
+  }).withFailureHandler((e) => alert(e.message)).generateWeeklySnapshot();
+}
+
+function loadSnapshots() {
+  google.script.run.withSuccessHandler((res) => {
+    document.getElementById('snapshotOut').textContent = JSON.stringify(res, null, 2);
+  }).withFailureHandler((e) => alert(e.message)).getWeeklySnapshots();
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>

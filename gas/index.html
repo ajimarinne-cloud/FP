@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日報＋数字＋予定</title>
+    <?!= include('css'); ?>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>🌼 日報＋数字＋予定</h1>
+      <p id="me"></p>
+
+      <div class="tabs">
+        <button onclick="showTab('daily')">日報入力</button>
+        <button onclick="showTab('plans')">予定</button>
+        <button onclick="showTab('archive')">My Archive</button>
+        <button id="adminTabBtn" onclick="showTab('admin')" style="display:none;">Weekly Snapshot</button>
+      </div>
+
+      <section id="tab-daily" class="card">
+        <h2>日報入力（3分）</h2>
+        <label>日付 <input id="dailyDate" type="date" /></label>
+        <div class="grid">
+          <label>リスト獲得<input id="list_count" type="number" min="0" /></label>
+          <label>アポ日程切り<input id="appt_cut_count" type="number" min="0" /></label>
+          <label>アポ予定<input id="appt_plan_count" type="number" min="0" /></label>
+          <label>アポ済み<input id="appt_done_count" type="number" min="0" /></label>
+          <label>LINE作成<input id="line_count" type="number" min="0" /></label>
+          <label>AC予定<input id="ac_plan_count" type="number" min="0" /></label>
+          <label>AC済み<input id="ac_done_count" type="number" min="0" /></label>
+        </div>
+        <label>感謝ひとこと（必須）<textarea id="gratitude_text"></textarea></label>
+        <label>今週のネック（任意）<input id="bottleneck_text" type="text" /></label>
+        <div id="fixedTags"></div>
+        <label>カスタムタグ（任意）<input id="tag_custom" type="text" maxlength="15" /></label>
+        <button onclick="submitDaily(false)">送信</button>
+        <button onclick="submitDaily(true)">編集保存</button>
+        <p id="dailyMsg"></p>
+      </section>
+
+      <section id="tab-plans" class="card" style="display:none;">
+        <h2>予定（月）</h2>
+        <label>対象月 <input id="planMonth" type="month" /></label>
+        <button onclick="loadPlans()">読込</button>
+        <table id="planTable">
+          <thead><tr><th>日付</th><th>アポ予定</th><th>AC予定</th><th>状態</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button onclick="savePlansUi()">予定を保存</button>
+        <p id="planMsg"></p>
+      </section>
+
+      <section id="tab-archive" class="card" style="display:none;">
+        <h2>My Archive</h2>
+        <label>対象月 <input id="archiveMonth" type="month" /></label>
+        <button onclick="loadArchive()">表示</button>
+        <p id="archiveSummary"></p>
+        <div id="archiveCalendar" class="calendar"></div>
+      </section>
+
+      <section id="tab-admin" class="card" style="display:none;">
+        <h2>Weekly Snapshot (Admin)</h2>
+        <button onclick="generateSnapshot()">今週を生成</button>
+        <button onclick="loadSnapshots()">再読込</button>
+        <pre id="snapshotOut"></pre>
+      </section>
+
+      <div id="toast" class="toast" aria-live="polite"></div>
+    </div>
+    <script>const INITIAL_USER_ID = '<?= initialUserId ?>';</script>
+    <?!= include('js'); ?>
+  </body>
+</html>
