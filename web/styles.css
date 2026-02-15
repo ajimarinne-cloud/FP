@@ -1,0 +1,78 @@
+:root {
+  --bg: #f9f8fb;
+  --card: #ffffff;
+  --ink: #2f2d3a;
+  --muted: #716d85;
+  --accent: #8d7fe2;
+  --ok: #2f8f63;
+  --warn: #c07b2f;
+  --line: #e8e3f4;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  background: linear-gradient(180deg, #fcfbff, var(--bg));
+  color: var(--ink);
+}
+.app-header { padding: 24px; text-align: center; }
+.app-header h1 { margin: 0; }
+.app-header p { margin: 8px 0 0; color: var(--muted); }
+.container { max-width: 960px; margin: 0 auto 60px; padding: 0 16px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 24px rgba(106, 92, 168, 0.08);
+  margin-bottom: 16px;
+}
+.controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+input, textarea, select, button {
+  border: 1px solid #d7d0ea;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+button {
+  background: #fff;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.tabs button.active { background: #f0ebff; border-color: var(--accent); }
+.tab { display: none; }
+.tab.active { display: block; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.hint { color: var(--muted); font-size: 13px; }
+.row { margin-top: 12px; display: flex; align-items: center; gap: 12px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.chip {
+  border: 1px solid #d9d3ef;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: #fff;
+}
+.chip.active { background: #efe9ff; border-color: var(--accent); }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.day {
+  border: 1px solid #e8e3f4;
+  border-radius: 8px;
+  min-height: 46px;
+  padding: 6px;
+  font-size: 12px;
+}
+.status-flower { color: var(--ok); }
+.status-bud { color: var(--warn); }
+.log-item { border-top: 1px solid var(--line); padding: 8px 0; }
+.kpi { font-weight: 600; }

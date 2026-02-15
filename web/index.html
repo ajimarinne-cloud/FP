@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Bloom Board</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>🌼 Daily Bloom Board</h1>
+      <p>日報＋数字＋予定（MVP）</p>
+    </header>
+
+    <main class="container">
+      <section class="card controls">
+        <label>ユーザー
+          <select id="userSelect"></select>
+        </label>
+        <label>日付
+          <input id="reportDate" type="date" />
+        </label>
+        <p id="deadlineInfo" class="hint"></p>
+      </section>
+
+      <nav class="tabs">
+        <button data-tab="daily" class="active">日報入力</button>
+        <button data-tab="archive">My Archive</button>
+        <button data-tab="schedule">予定</button>
+        <button data-tab="weekly">Weekly Snapshot</button>
+      </nav>
+
+      <section id="tab-daily" class="card tab active">
+        <h2>3分入力</h2>
+        <div class="grid-2">
+          <label>リスト獲得<input type="number" id="list_count" min="0" required /></label>
+          <label>アポ日程切り<input type="number" id="appointment_set_count" min="0" required /></label>
+          <label>アポ予定<input type="number" id="appointment_planned_count_raw" min="0" required /></label>
+          <label>アポ済み<input type="number" id="appointment_done_count" min="0" required /></label>
+          <label>LINE作成<input type="number" id="line_created_count" min="0" required /></label>
+          <label>AC予定<input type="number" id="ac_planned_count" min="0" required /></label>
+          <label>AC済み<input type="number" id="ac_done_count" min="0" required /></label>
+        </div>
+
+        <h3>固定タグ（必須）</h3>
+        <div id="fixedTags" class="chips"></div>
+
+        <h3>カスタムタグ（1日1つまで）</h3>
+        <div class="chips" id="customTagCandidates"></div>
+        <label>カスタムタグ入力（15文字以内）
+          <input id="customTagInput" type="text" maxlength="15" placeholder="例: 体調" />
+        </label>
+
+        <label>日報本文（任意）
+          <textarea id="free_note" rows="4" placeholder="自由記述（下書き自動保存）"></textarea>
+        </label>
+
+        <label>個人ネック（1行）
+          <input id="bottleneck_note" type="text" maxlength="100" placeholder="今週のネック" />
+        </label>
+
+        <div class="row">
+          <button id="submitReport">送信（1日1回）</button>
+          <span id="submitStatus" class="hint"></span>
+        </div>
+      </section>
+
+      <section id="tab-archive" class="card tab">
+        <h2>My Archive</h2>
+        <div id="monthlySummary"></div>
+        <div id="monthlyCalendar" class="calendar"></div>
+        <div id="logList"></div>
+      </section>
+
+      <section id="tab-schedule" class="card tab">
+        <h2>予定</h2>
+        <div class="grid-2">
+          <label>予定日<input id="scheduleDate" type="date" /></label>
+          <label>種別
+            <select id="scheduleType"><option value="appt">アポ</option><option value="ac">AC</option></select>
+          </label>
+          <label>ステータス
+            <select id="scheduleStatus"><option value="tentative">仮</option><option value="confirmed">確定</option><option value="done">完了</option></select>
+          </label>
+          <label>件数<input id="scheduleCount" type="number" min="0" value="1" /></label>
+        </div>
+        <button id="saveSchedule">予定を保存</button>
+        <div id="scheduleList"></div>
+      </section>
+
+      <section id="tab-weekly" class="card tab">
+        <h2>Weekly Snapshot</h2>
+        <button id="generateSnapshot">今週スナップショット生成</button>
+        <div id="weeklyOutput"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

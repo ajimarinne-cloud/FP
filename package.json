@@ -1,1 +1,8 @@
-{}
+{
+  "name": "daily-bloom-board-mvp",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "python3 -m http.server 4173 --directory web"
+  }
+}

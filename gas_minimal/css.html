@@ -1,0 +1,79 @@
+<style>
+body { font-family: "Hiragino Sans", sans-serif; background:#faf8ff; margin:0; }
+.wrap { max-width: 900px; margin: 0 auto; padding:16px; }
+.card {
+  background:#fff;
+  border:1px solid #e5ddf8;
+  border-radius:12px;
+  padding:16px;
+  margin:12px 0;
+  animation: cardIn .28s ease both;
+}
+.tabs { display:flex; gap:8px; flex-wrap:wrap; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+label { display:flex; flex-direction:column; gap:4px; margin-bottom:8px; }
+input, textarea, button, select {
+  border:1px solid #d3c9ee;
+  border-radius:8px;
+  padding:8px;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .12s ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color:#8e78d6;
+  box-shadow: 0 0 0 3px rgba(141,127,226,.16);
+}
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+textarea { min-height:70px; }
+#fixedTags { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+.tag-chip {
+  border:1px solid #d3c9ee;
+  border-radius:999px;
+  padding:6px 10px;
+  background:#fff;
+  cursor:pointer;
+}
+.tag-chip.active { background:#efe9ff; }
+.calendar { display:grid; grid-template-columns: repeat(7,1fr); gap:6px; }
+.day { border:1px solid #ece4ff; border-radius:8px; padding:6px; min-height:40px; animation: popIn .22s ease both; }
+table { width:100%; border-collapse: collapse; }
+th,td { border:1px solid #ece4ff; padding:6px; }
+
+.tab-enter { animation: tabIn .24s ease both; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%) translateY(12px);
+  background: #2f2d3a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast.show { animation: toastInOut 2.2s ease both; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  12% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  82% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(12px); }
+}
+</style>
